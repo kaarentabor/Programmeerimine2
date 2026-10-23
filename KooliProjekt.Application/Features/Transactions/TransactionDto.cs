@@ -5,6 +5,8 @@ namespace KooliProjekt.Application.Features.Transactions;
 
 public class TransactionDto
 {
+    public string ClientName { get; set; }
+    public decimal OutstandingAmount { get; set; }
     public int TransactionId { get; set; }
     public int ClientId { get; set; }
     public string Name { get; set; }

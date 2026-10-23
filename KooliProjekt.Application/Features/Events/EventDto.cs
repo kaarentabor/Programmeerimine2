@@ -4,6 +4,7 @@ namespace KooliProjekt.Application.Features.Events;
 
 public class EventDto
 {
+    public string ClientName { get; set; }
     public int EventId { get; set; }
     public int ClientId { get; set; }
     public int EventTypeId { get; set; }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Payments;
 
-public class PaymentListQueryHandler : IRequestHandler<PaymentListQuery, OperationResult<IList<PaymentDto>>>
+public class PaymentListQueryHandler : IRequestHandler<PaymentListQuery, OperationResult<PagedResult<PaymentDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,12 +18,15 @@ public class PaymentListQueryHandler : IRequestHandler<PaymentListQuery, Operati
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<PaymentDto>>> Handle(PaymentListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<PaymentDto>>> Handle(PaymentListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.Payments.AsNoTracking()
             .OrderBy(entity => entity.PaymentId)
             .Select(entity => new PaymentDto
             {
+                EventTitle = entity.Event.Title,
+                InvoiceNumber = entity.Event.InvoiceNumber,
+                ClientName = entity.Registration.Transaction.Client.Name,
                 PaymentId = entity.PaymentId,
                 RegistrationId = entity.RegistrationId,
                 EventId = entity.EventId,
@@ -33,8 +36,8 @@ public class PaymentListQueryHandler : IRequestHandler<PaymentListQuery, Operati
                 Status = entity.Status,
                 PaymentMethod = entity.PaymentMethod
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<PaymentDto>>(value);
+        return new OperationResult<PagedResult<PaymentDto>>(value);
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Transactions;
 
-public class TransactionListQueryHandler : IRequestHandler<TransactionListQuery, OperationResult<IList<TransactionDto>>>
+public class TransactionListQueryHandler : IRequestHandler<TransactionListQuery, OperationResult<PagedResult<TransactionDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,12 +18,14 @@ public class TransactionListQueryHandler : IRequestHandler<TransactionListQuery,
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<TransactionDto>>> Handle(TransactionListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<TransactionDto>>> Handle(TransactionListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.Transactions.AsNoTracking()
             .OrderBy(entity => entity.TransactionId)
             .Select(entity => new TransactionDto
             {
+                ClientName = entity.Client.Name,
+                OutstandingAmount = entity.TotalPrice - entity.PaidAmount,
                 TransactionId = entity.TransactionId,
                 ClientId = entity.ClientId,
                 Name = entity.Name,
@@ -34,8 +36,8 @@ public class TransactionListQueryHandler : IRequestHandler<TransactionListQuery,
                 PaymentMethod = entity.PaymentMethod,
                 Summary = entity.Summary
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<TransactionDto>>(value);
+        return new OperationResult<PagedResult<TransactionDto>>(value);
     }
 }

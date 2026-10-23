@@ -23,6 +23,7 @@ public class EventGetQueryHandler : IRequestHandler<EventGetQuery, OperationResu
             .Where(entity => entity.EventId == request.Id)
             .Select(entity => new EventDto
             {
+                ClientName = entity.Client.Name,
                 EventId = entity.EventId,
                 ClientId = entity.ClientId,
                 EventTypeId = entity.EventTypeId,

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Clients;
 
-public class ClientListQueryHandler : IRequestHandler<ClientListQuery, OperationResult<IList<ClientDto>>>
+public class ClientListQueryHandler : IRequestHandler<ClientListQuery, OperationResult<PagedResult<ClientDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,7 +18,7 @@ public class ClientListQueryHandler : IRequestHandler<ClientListQuery, Operation
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<ClientDto>>> Handle(ClientListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<ClientDto>>> Handle(ClientListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.Clients.AsNoTracking()
             .OrderBy(entity => entity.ClientId)
@@ -29,8 +29,8 @@ public class ClientListQueryHandler : IRequestHandler<ClientListQuery, Operation
                 Email = entity.Email,
                 Phone = entity.Phone
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<ClientDto>>(value);
+        return new OperationResult<PagedResult<ClientDto>>(value);
     }
 }

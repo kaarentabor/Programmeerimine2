@@ -16,35 +16,16 @@ public class ClientsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken cancellationToken)
+    public async Task<IActionResult> List([FromQuery] ClientListQuery query, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new ClientListQuery(), cancellationToken);
-        if (result == null)
-        {
-            return NotFound();
-        }
-
+        var result = await _mediator.Send(query, cancellationToken);
         return Result(result);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
     {
-        if (id <= 0)
-        {
-            return NotFound();
-        }
-
         var result = await _mediator.Send(new ClientGetQuery { Id = id }, cancellationToken);
-        if (result == null)
-        {
-            return NotFound();
-        }
-        if (!result.HasErrors && result.Value == null)
-        {
-            return NotFound();
-        }
-
         return Result(result);
     }
 }

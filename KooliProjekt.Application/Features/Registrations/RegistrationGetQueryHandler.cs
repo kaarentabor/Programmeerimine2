@@ -23,6 +23,9 @@ public class RegistrationGetQueryHandler : IRequestHandler<RegistrationGetQuery,
             .Where(entity => entity.RegistrationId == request.Id)
             .Select(entity => new RegistrationDto
             {
+                EventTitle = entity.Event.Title,
+                TransactionName = entity.Transaction.Name,
+                ClientName = entity.Transaction.Client.Name,
                 RegistrationId = entity.RegistrationId,
                 TransactionId = entity.TransactionId,
                 EventId = entity.EventId,

@@ -4,6 +4,7 @@ namespace KooliProjekt.Application.Features.FileAttachments;
 
 public class FileAttachmentDto
 {
+    public string EventTitle { get; set; }
     public int FileId { get; set; }
     public int EventId { get; set; }
     public string Filename { get; set; }

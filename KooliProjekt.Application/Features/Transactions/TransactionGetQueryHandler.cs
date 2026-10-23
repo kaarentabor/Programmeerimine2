@@ -23,6 +23,8 @@ public class TransactionGetQueryHandler : IRequestHandler<TransactionGetQuery, O
             .Where(entity => entity.TransactionId == request.Id)
             .Select(entity => new TransactionDto
             {
+                ClientName = entity.Client.Name,
+                OutstandingAmount = entity.TotalPrice - entity.PaidAmount,
                 TransactionId = entity.TransactionId,
                 ClientId = entity.ClientId,
                 Name = entity.Name,

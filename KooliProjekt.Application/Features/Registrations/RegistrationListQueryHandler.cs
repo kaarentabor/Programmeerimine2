@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Registrations;
 
-public class RegistrationListQueryHandler : IRequestHandler<RegistrationListQuery, OperationResult<IList<RegistrationDto>>>
+public class RegistrationListQueryHandler : IRequestHandler<RegistrationListQuery, OperationResult<PagedResult<RegistrationDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,20 +18,23 @@ public class RegistrationListQueryHandler : IRequestHandler<RegistrationListQuer
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<RegistrationDto>>> Handle(RegistrationListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<RegistrationDto>>> Handle(RegistrationListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.Registrations.AsNoTracking()
             .OrderBy(entity => entity.RegistrationId)
             .Select(entity => new RegistrationDto
             {
+                EventTitle = entity.Event.Title,
+                TransactionName = entity.Transaction.Name,
+                ClientName = entity.Transaction.Client.Name,
                 RegistrationId = entity.RegistrationId,
                 TransactionId = entity.TransactionId,
                 EventId = entity.EventId,
                 RegistrationTime = entity.RegistrationTime,
                 Status = entity.Status
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<RegistrationDto>>(value);
+        return new OperationResult<PagedResult<RegistrationDto>>(value);
     }
 }

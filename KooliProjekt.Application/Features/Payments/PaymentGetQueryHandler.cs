@@ -23,6 +23,9 @@ public class PaymentGetQueryHandler : IRequestHandler<PaymentGetQuery, Operation
             .Where(entity => entity.PaymentId == request.Id)
             .Select(entity => new PaymentDto
             {
+                EventTitle = entity.Event.Title,
+                InvoiceNumber = entity.Event.InvoiceNumber,
+                ClientName = entity.Registration.Transaction.Client.Name,
                 PaymentId = entity.PaymentId,
                 RegistrationId = entity.RegistrationId,
                 EventId = entity.EventId,

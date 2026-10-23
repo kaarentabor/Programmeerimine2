@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.Events;
 
-public class EventListQueryHandler : IRequestHandler<EventListQuery, OperationResult<IList<EventDto>>>
+public class EventListQueryHandler : IRequestHandler<EventListQuery, OperationResult<PagedResult<EventDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,12 +18,13 @@ public class EventListQueryHandler : IRequestHandler<EventListQuery, OperationRe
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<EventDto>>> Handle(EventListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<EventDto>>> Handle(EventListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.Events.AsNoTracking()
             .OrderBy(entity => entity.EventId)
             .Select(entity => new EventDto
             {
+                ClientName = entity.Client.Name,
                 EventId = entity.EventId,
                 ClientId = entity.ClientId,
                 EventTypeId = entity.EventTypeId,
@@ -35,8 +36,8 @@ public class EventListQueryHandler : IRequestHandler<EventListQuery, OperationRe
                 Status = entity.Status,
                 Title = entity.Title
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<EventDto>>(value);
+        return new OperationResult<PagedResult<EventDto>>(value);
     }
 }

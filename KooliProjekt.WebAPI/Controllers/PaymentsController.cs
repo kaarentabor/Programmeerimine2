@@ -16,35 +16,16 @@ public class PaymentsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(CancellationToken cancellationToken)
+    public async Task<IActionResult> List([FromQuery] PaymentListQuery query, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new PaymentListQuery(), cancellationToken);
-        if (result == null)
-        {
-            return NotFound();
-        }
-
+        var result = await _mediator.Send(query, cancellationToken);
         return Result(result);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
     {
-        if (id <= 0)
-        {
-            return NotFound();
-        }
-
         var result = await _mediator.Send(new PaymentGetQuery { Id = id }, cancellationToken);
-        if (result == null)
-        {
-            return NotFound();
-        }
-        if (!result.HasErrors && result.Value == null)
-        {
-            return NotFound();
-        }
-
         return Result(result);
     }
 }

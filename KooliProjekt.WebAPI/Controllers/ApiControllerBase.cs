@@ -22,10 +22,10 @@ namespace KooliProjekt.WebAPI.Controllers
 
             if (result.HasErrors)
             {
-                return BadRequest(serialized);
+                return new ContentResult { Content = serialized, ContentType = "application/json", StatusCode = 400 };
             }
 
-            return Ok(serialized);
+            return new ContentResult { Content = serialized, ContentType = "application/json", StatusCode = 200 };
         }
 
         protected IActionResult Result<T>(OperationResult<T> result)
@@ -34,7 +34,7 @@ namespace KooliProjekt.WebAPI.Controllers
 
             if (result.HasErrors)
             {
-                return BadRequest(serialized);
+                return new ContentResult { Content = serialized, ContentType = "application/json", StatusCode = 400 };
             }
 
             if (result.Value == null)
@@ -42,7 +42,7 @@ namespace KooliProjekt.WebAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(serialized);
+            return new ContentResult { Content = serialized, ContentType = "application/json", StatusCode = 200 };
         }
     }
 }

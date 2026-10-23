@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using KooliProjekt.Application.Infrastructure.Paging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KooliProjekt.Application.Features.FileAttachments;
 
-public class FileAttachmentListQueryHandler : IRequestHandler<FileAttachmentListQuery, OperationResult<IList<FileAttachmentDto>>>
+public class FileAttachmentListQueryHandler : IRequestHandler<FileAttachmentListQuery, OperationResult<PagedResult<FileAttachmentDto>>>
 {
     private readonly ApplicationDbContext _dbContext;
 
@@ -18,20 +18,21 @@ public class FileAttachmentListQueryHandler : IRequestHandler<FileAttachmentList
         _dbContext = dbContext;
     }
 
-    public async Task<OperationResult<IList<FileAttachmentDto>>> Handle(FileAttachmentListQuery request, CancellationToken cancellationToken)
+    public async Task<OperationResult<PagedResult<FileAttachmentDto>>> Handle(FileAttachmentListQuery request, CancellationToken cancellationToken)
     {
         var value = await _dbContext.FileAttachments.AsNoTracking()
             .OrderBy(entity => entity.FileId)
             .Select(entity => new FileAttachmentDto
             {
+                EventTitle = entity.Event.Title,
                 FileId = entity.FileId,
                 EventId = entity.EventId,
                 Filename = entity.Filename,
                 FileType = entity.FileType,
                 UploadTime = entity.UploadTime
             })
-            .ToListAsync(cancellationToken);
+            .GetPagedAsync(request.Page, request.PageSize, cancellationToken);
 
-        return new OperationResult<IList<FileAttachmentDto>>(value);
+        return new OperationResult<PagedResult<FileAttachmentDto>>(value);
     }
 }

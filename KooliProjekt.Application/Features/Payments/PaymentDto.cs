@@ -4,6 +4,9 @@ namespace KooliProjekt.Application.Features.Payments;
 
 public class PaymentDto
 {
+    public string EventTitle { get; set; }
+    public string InvoiceNumber { get; set; }
+    public string ClientName { get; set; }
     public int PaymentId { get; set; }
     public int RegistrationId { get; set; }
     public int EventId { get; set; }

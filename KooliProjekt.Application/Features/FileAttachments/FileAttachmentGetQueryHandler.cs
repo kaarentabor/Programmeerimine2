@@ -23,6 +23,7 @@ public class FileAttachmentGetQueryHandler : IRequestHandler<FileAttachmentGetQu
             .Where(entity => entity.FileId == request.Id)
             .Select(entity => new FileAttachmentDto
             {
+                EventTitle = entity.Event.Title,
                 FileId = entity.FileId,
                 EventId = entity.EventId,
                 Filename = entity.Filename,
